@@ -10,6 +10,7 @@ function App() {
   const [showBread, setShowBread] = useState(false);
   const intersectionRef = useRef(null);
   const [searchName, setSearchName] = useState('');
+  const [mobile, setMobile] = useState(false);
 
   const intersection = useIntersection(intersectionRef, {
     root: null,
@@ -36,11 +37,17 @@ function App() {
     setSearchName(value.toLowerCase());
   };
 
- 
+  const onSetMobile = (e) => {
+    const { checked } = e.target;
+    setMobile(checked);
+  };
+
   return (
-    <>
+    <div className={mobile ? "mobile" : ""}>
       <h1>Images of Cats</h1>
       <Switch label="Show bread information" checked={showBread} onChange={onShowDescription} />
+      <Switch label="Mobile version" checked={mobile} onChange={onSetMobile} />
+
       {showBread && (
         <>
           <span>Search: </span>
@@ -67,7 +74,7 @@ function App() {
         })}
       </ul>
       <div ref={intersectionRef} data-testid="intersection" />
-    </>
+    </div>
   );
 }
 
