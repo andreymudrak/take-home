@@ -1,6 +1,9 @@
 import React from "react";
 import { render, fireEvent, cleanup } from "@testing-library/react";
-import { act } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
+import * as reactUse from 'react-use';
+
+import { useCatImages } from "./hooks/useCatImages";
 
 import App from "./App";
 
@@ -35,14 +38,17 @@ global.fetch = jest.fn(() =>
   })
 );
 
-test("renders learn react link", () => {
-  const { getByText } = render(<App />);
-  const heading = getByText(/images of cats/i);
-  expect(heading).toBeInTheDocument();
-});
+describe('App', () => {
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
 
-describe('Container "Notification Bell"', () => {
-  afterEach(cleanup);
+  it("renders learn react link", () => {
+    const { getByText } = render(<App />);
+    const heading = getByText(/images of cats/i);
+    expect(heading).toBeInTheDocument();
+  });
 
   it("should show all images without description", async () => {
     const { getAllByRole, queryByText } = render(<App />);
@@ -69,5 +75,21 @@ describe('Container "Notification Bell"', () => {
     expect(triggerNodes.length).toBe(1);
     expect(getByText("Name: Orion")).toBeInTheDocument();
     expect(getByText("Description: Active, Energetic, Independent, Intelligent, Gentle")).toBeInTheDocument();
+  });
+
+  it("make request when scroll down", async () => {
+
+    const { getByTestId } = render(<App />);
+    const { result } = renderHook(() => useCatImages());
+
+    const mockFn = jest.fn();
+    const useLoadNextPageSpy = jest.spyOn(result.current, 'loadNextPage');
+    useLoadNextPageSpy.mockReturnValue(mockFn);
+
+    const intersectionNode = getByTestId("intersection");
+    intersectionNode.scroll(intersectionNode);
+    await act(() => Promise.resolve());
+
+    expect(mockFn).toHaveBeenCalled();
   });
 });

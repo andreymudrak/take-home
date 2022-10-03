@@ -1,12 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useIntersection } from 'react-use';
 import { useCatImages } from "./hooks/useCatImages";
 
 import { Switch } from './components/Switch'; 
 import "./App.css";
 
 function App() {
-  const images = useCatImages();
+  const { images, loading, loadNextPage } = useCatImages();
   const [showBread, setShowBread] = useState(false);
+  const intersectionRef = useRef(null);
+
+  const intersection = useIntersection(intersectionRef, {
+    root: null,
+    rootMargin: '20px',
+    threshold: 1,
+  });
+
+  useEffect(() => {
+    console.log(intersection)
+    if (intersection && (intersection.intersectionRatio === 1) && !loading) {
+      console.log(123)
+      loadNextPage();
+    }
+  }, [intersection]);
+
   const onShowDescription = (e) => {
     const { checked } = e.target;
     setShowBread(checked);
@@ -35,6 +52,7 @@ function App() {
           );
         })}
       </ul>
+      <div ref={intersectionRef} data-testid="intersection" />
     </>
   );
 }
