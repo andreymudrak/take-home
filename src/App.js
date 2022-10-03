@@ -9,6 +9,7 @@ function App() {
   const { images, loading, loadNextPage } = useCatImages();
   const [showBread, setShowBread] = useState(false);
   const intersectionRef = useRef(null);
+  const [searchName, setSearchName] = useState('');
 
   const intersection = useIntersection(intersectionRef, {
     root: null,
@@ -18,7 +19,7 @@ function App() {
 
   useEffect(() => {
     console.log(intersection)
-    if (intersection && (intersection.intersectionRatio === 1) && !loading) {
+    if (intersection && (intersection.intersectionRatio === 1) && !loading && !showBread) {
       console.log(123)
       loadNextPage();
     }
@@ -27,15 +28,28 @@ function App() {
   const onShowDescription = (e) => {
     const { checked } = e.target;
     setShowBread(checked);
+    setSearchName('')
   };
-  
+
+  const onSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchName(value.toLowerCase());
+  };
+
+ 
   return (
     <>
       <h1>Images of Cats</h1>
       <Switch label="Show bread information" checked={showBread} onChange={onShowDescription} />
+      {showBread && (
+        <>
+          <span>Search: </span>
+          <input onChange={onSearchChange} data-testid="search"/>
+        </>
+      )}
       <ul>
         {images.map(({ id, height, url, width, breeds = []}) => {
-          if (showBread && !breeds.length) {
+          if (showBread && (!breeds.length || !breeds[0].name.toLowerCase().includes(searchName))) {
             return null;
           }
 

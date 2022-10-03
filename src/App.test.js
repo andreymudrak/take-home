@@ -1,7 +1,6 @@
 import React from "react";
 import { render, fireEvent, cleanup } from "@testing-library/react";
 import { act, renderHook } from "@testing-library/react-hooks";
-import * as reactUse from 'react-use';
 
 import { useCatImages } from "./hooks/useCatImages";
 
@@ -91,5 +90,34 @@ describe('App', () => {
     await act(() => Promise.resolve());
 
     expect(mockFn).toHaveBeenCalled();
+  });
+
+  it("should show image without with match search", async () => {
+    const { getByTestId, getByText } = render(<App />);
+
+    await act(() => Promise.resolve());
+    
+    const switchNode = getByTestId('switch');
+    fireEvent.click(switchNode); 
+    
+    const searchNode = getByTestId('search');
+    fireEvent.change(searchNode, { target: { value: 'ori' } });
+
+    expect(getByText("Name: Orion")).toBeInTheDocument();
+  });
+
+  it("should show image without with out match search", async () => {
+    const { queryAllByRole, getByTestId } = render(<App />);
+
+    await act(() => Promise.resolve());
+    
+    const switchNode = getByTestId('switch');
+    fireEvent.click(switchNode); 
+    
+    const searchNode = getByTestId('search');
+    fireEvent.change(searchNode, { target: { value: 'saturn' } });
+   
+    const triggerNodes = queryAllByRole('img');
+    expect(triggerNodes.length).toEqual(0);
   });
 });
